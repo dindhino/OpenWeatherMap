@@ -1,15 +1,53 @@
 import React, { Component } from 'react';
+import TextField from '@material-ui/core/TextField';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 
 export class Home extends Component {
     static displayName = Home.name;
 
     constructor(props) {
         super(props);
-        this.state = { weather: FormData, loading: true };
+        this.state = {
+            weather: FormData,
+            loading: true,
+            countries: [],
+            loadingCountries: true,
+            cities: [],
+            loadingCities: true
+        };
     }
 
     componentDidMount() {
+        //this.populateCountryData();
         this.populateWeatherData();
+    }
+
+    static renderCountryData(countries) {
+        return (
+            <div style={{ marginLeft: '40%', marginTop: '60px' }}>
+                <h3>Country</h3>
+                <Autocomplete
+                    options={countries}
+                    style={{ width: 300 }}
+                    renderInput={(params) =>
+                        <TextField {...params} label="Combo box" variant="outlined" />}
+                />
+            </div>
+        );
+    }
+
+    static renderCityData(cities) {
+        return (
+            <div style={{ marginLeft: '40%', marginTop: '60px' }}>
+                <h3>Country</h3>
+                <Autocomplete
+                    options={cities}
+                    style={{ width: 300 }}
+                    renderInput={(params) =>
+                        <TextField {...params} label="Combo box" variant="outlined" />}
+                />
+            </div>
+        );
     }
 
     static renderWeatherData(weather) {
@@ -48,43 +86,63 @@ export class Home extends Component {
     }
 
     render() {
-        let contents = this.state.loading
+        //let countryContents = this.state.loadingCountries
+        //    ? <p><em>Loading...</em></p>
+        //    : Home.renderCountryData(this.state.countries);
+
+        //let cityContents = this.state.loadingCities
+        //    ? <p><em>Loading...</em></p>
+        //    : Home.renderCountryData(this.state.cities);
+
+        let weatherContents = this.state.loading
             ? <p><em>Loading...</em></p>
             : Home.renderWeatherData(this.state.weather);
 
         return (
             <div>
+                {/*{countryContents}*/}
+                {/*{cityContents}*/}
                 <h1 id="tabelLabel" >Weather data</h1>
                 <p>This component demonstrates fetching data from the server.</p>
-                {contents}
+                {weatherContents}
             </div>
         );
     }
 
     async populateCountryData() {
-        const response = await fetch('https://localhost:44376/country',
+        const response = await fetch('https://localhost:44376/weather/country',
             {
                 method: 'get',
             });
         const result = await response.json();
-        this.setState({ country: result, loading: false });
+        this.setState({ countries: result, loadingCountries: false });
+    }
+
+    async populateCityData() {
+        let countryCode = 'RU';
+        const response = await fetch('https://localhost:44376/weather/city/' + countryCode,
+            {
+                method: 'get',
+            });
+        const result = await response.json();
+        this.setState({ cities: result, loadingCities: false });
     }
 
     async populateWeatherData() {
         const response = await fetch('https://localhost:44376/weather',
-        {
-            method: 'post',
-            headers:
             {
-                'Accept': 'application/json, text/plain',
-                'Content-Type': 'application/json;charset=UTF-8'
-            },
-            body: JSON.stringify
-            ({
-                cityName: 'Bandung',
-                countryCode: 'ID'
-            })
-        });
+                method: 'post',
+                headers:
+                {
+                    'Accept': 'application/json, text/plain',
+                    'Content-Type': 'application/json;charset=UTF-8'
+                },
+                body: JSON.stringify
+                    ({
+                        cityName: 'Bandung',
+                        countryCode: 'ID'
+                    })
+            });
         const result = await response.json();
         this.setState({ weather: result, loading: false });
     }
